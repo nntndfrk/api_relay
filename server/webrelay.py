@@ -13,7 +13,7 @@ relayStateToGPIOState = {
 
 def Setup():
 	for relay in relays:
-		GPIO.setup(relayIdToPin[relay[id]], GPIO.OUT)
+		GPIO.setup(relayIdToPin[relay['id']], GPIO.OUT)
 		GPIO.output(relayIdToPin[relay['id']], relayStateToGPIOState[relay['state']])
 
 def UpdatePinFromRelayObject(relay):
