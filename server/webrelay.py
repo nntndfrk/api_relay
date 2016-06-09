@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from flask import Flask, jsonyfy, abort, request, render_template
+from flask import Flask, jsonify, abort, request, render_template
 from relaydefinitions import relays, relayIdToPin
 
 app = Flask(__name__)
@@ -22,7 +22,7 @@ def UpdatePinFromRelayObject(relay):
 
 @app.route('/WebRelay/api/relays', methods=['GET'])
 def get_relays():
-	return jsonyfy({'relays': relays})
+	return jsonify({'relays': relays})
 
 
 @app.route('WebRelay/api/relays/<int:relay_id>', methods=['GET'])
@@ -30,7 +30,7 @@ def get_relay(relay_id):
 	matchingRelays = [relay for relay in relays if relay['id'] == relay_id]
 	if len(matchingRelays) == 0:
 		abort(404)
-	return jsonyfy({'relay': matchingRelays[0]})
+	return jsonify({'relay': matchingRelays[0]})
 
 
 @app.route('WebRelay/api/relays/relay_id', methods=['PUT'])
@@ -47,7 +47,7 @@ def update_relay(relay_id):
 	relay = matchingRelays[0]
 	relay['state'] = request.json.get('state')
 	UpdatePinFromRelayObject(relay)
-	return jsonyfy({'relay': relay})
+	return jsonify({'relay': relay})
 
 
 if __name__ == "__main__":
