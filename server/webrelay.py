@@ -25,7 +25,7 @@ def get_relays():
 	return jsonify({'relays': relays})
 
 
-@app.route('WebRelay/api/relays/<int:relay_id>', methods=['GET'])
+@app.route('/WebRelay/api/relays/<int:relay_id>', methods=['GET'])
 def get_relay(relay_id):
 	matchingRelays = [relay for relay in relays if relay['id'] == relay_id]
 	if len(matchingRelays) == 0:
@@ -33,7 +33,7 @@ def get_relay(relay_id):
 	return jsonify({'relay': matchingRelays[0]})
 
 
-@app.route('WebRelay/api/relays/relay_id', methods=['PUT'])
+@app.route('/WebRelay/api/relays/relay_id', methods=['PUT'])
 def update_relay(relay_id):
 	matchingRelays = [relay for relay in relays if relay['id'] == relay_id]
 
