@@ -55,3 +55,5 @@ myApp.controller('RelaysController', ['$scope', '$http', function($scope, $http)
   getRelayInfo();
   
 }]);
+
+alert('Hello  !');
