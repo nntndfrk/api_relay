@@ -51,7 +51,7 @@ def update_relay(relay_id):
 
 @app.route('/WebRelay/', methods=['GET'])
 def index():
-	return render_template('/templates/index.html')
+	return render_template('../templates/index.html')
 
 
 if __name__ == "__main__":
