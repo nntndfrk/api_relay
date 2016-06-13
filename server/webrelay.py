@@ -49,6 +49,10 @@ def update_relay(relay_id):
 	UpdatePinFromRelayObject(relay)
 	return jsonify({'relay': relay})
 
+@app.route('/WebRelay/', methods=['GET'])
+def index():
+	return render_template('index.html')
+
 
 if __name__ == "__main__":
 	print("starting...")
