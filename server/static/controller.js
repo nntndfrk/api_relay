@@ -56,4 +56,11 @@ myApp.controller('RelaysController', ['$scope', '$http', function($scope, $http)
   
 }]);
 
+myApp.controller('SwitchDemoCtrl', function($scope) {
+  $scope.data = {
+    cb1: true,
+    cb4: true
+  };
+});
+
 alert('Hello  !');
