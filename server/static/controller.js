@@ -38,10 +38,10 @@ myApp.controller('RelaysController', ['$scope', '$http', function($scope, $http)
     $http.put("/WebRelay/api/relays/"+relay.id, { state : newState}).then(function(response) {
     	relay = response.data.relay;
         if (relay.state == 'on') {
-            cb1 = true;
+          $scope.cb1 = true;
         }
         else {
-           cb1 = false;		
+          $scope.cb1 = false;		
         }
         for (var i=0; i < $scope.relays.length; i++) {
             if ($scope.relays[i].id == relay.id) {
