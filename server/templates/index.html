@@ -1,41 +1,30 @@
 <!DOCTYPE html>
-<html ng-app="myApp">
-
+<html lang="en"  ng-app="myApp">
 <head>
-    <!-- Angular Material requires Angular.js Libraries -->
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
-
-  <!-- Angular Material Library -->
-  <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
-
-  <!-- My -->
-  <script src="{{ url_for('static', filename='controller.js') }}"></script>
-  <link rel="stylesheet" href="/static/style.css" />
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/foundation/6.2.1/foundation.min.css">
 </head>
-
 <body>
+  <div class="row">
+    <div class="small-6 small-centered columns" ng-controller="RelaysController">
+      <h3> [[header]] </h3>
+      <hr>
 
-
-<div class="inset" ng-controller="SwitchDemoCtrl">
-  <md-switch ng-model="data.cb1" aria-label="Switch 1">
-    Switch 1: [[ data.cb1 ]]
-  </md-switch>
-  <md-switch ng-model="data.cb2" aria-label="Switch 2" ng-true-value="'yup'" ng-false-value="'nope'" class="md-warn">
-    Switch 2 (md-warn): [[ data.cb2 ]]
-  </md-switch>
-  <md-switch ng-disabled="true" aria-label="Disabled switch">
-    Switch (Disabled)
-  </md-switch>
-  <md-switch ng-disabled="true" aria-label="Disabled active switch" ng-model="data.cb4">
-    Switch (Disabled, Active)
-  </md-switch>
-  <md-switch class="md-primary" md-no-ink aria-label="Switch No Ink">
-    Switch (md-primary): No Ink
-  </md-switch>
-</div>
+      <div ng-repeat="item in relays">
+        <p ng-bind="item.name"></p>
+        <!-- <p ng-src=[[item.id]] ng-click="toggleRelay(item)">button</p> -->
+        <button type="button" class="large button" ng-src=[[item.id]] ng-click="toggleRelay(item)"><span ng-bind="item.state"></span></button>
+      </div>
+    </div>
+  </div>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+  <script src="{{ url_for('static', filename='controller.js') }}"></script>
+<script
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+    
+  <script src="https://cdn.jsdelivr.net/foundation/6.2.1/foundation.min.js"></script>
 </body>
-
 </html>

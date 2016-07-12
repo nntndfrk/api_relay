@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 from flask import Flask, jsonify, abort, request, render_template
 from relaydefinitions import relays, relayIdToPin
 
@@ -12,12 +13,23 @@ relayStateToGPIOState = {
 }
 
 def Setup():
+	GPIO.setwarnings(False)
 	for relay in relays:
 		GPIO.setup(relayIdToPin[relay['id']], GPIO.OUT)
 		GPIO.output(relayIdToPin[relay['id']], relayStateToGPIOState[relay['state']])
 
 def UpdatePinFromRelayObject(relay):
 	GPIO.output(relayIdToPin[relay['id']], relayStateToGPIOState[relay['state']])
+
+def TimerPinFromRelayObject(relay):
+	if not GPIO.input(relayIdToPin[relay['id']]):
+		GPIO.output(relayIdToPin[relay['id']], GPIO.HIGH)
+		time.sleep(relay['timer'])
+		GPIO.output(relayIdToPin[relay['id']], GPIO.LOW)
+	else:
+		GPIO.output(relayIdToPin[relay['id']], GPIO.LOW)
+		time.sleep(relay['timer'])
+		GPIO.output(relayIdToPin[relay['id']], GPIO.HIGH)
 
 
 @app.route('/WebRelay/api/relays', methods=['GET'])
@@ -42,14 +54,18 @@ def update_relay(relay_id):
 	if not request.json:
 		abort(400)
 	if not 'state' in request.json:
-		abort(400)
-
-	relay = matchingRelays[0]
-	relay['state'] = request.json.get('state')
-	UpdatePinFromRelayObject(relay)
+		relay = matchingRelays[0]
+		relay['timer'] = request.json.get('timer')
+		TimerPinFromRelayObject(relay)
+	if not request.json.get('timer'):
+		relay = matchingRelays[0]
+		relay['state'] = request.json.get('state')
+		UpdatePinFromRelayObject(relay)
+		
 	return jsonify({'relay': relay})
 
-@app.route('/WebRelay/', methods=['GET'])
+
+@app.route('/', methods=['GET'])
 def index():
 	return render_template('index.html')
 
