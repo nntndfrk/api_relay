@@ -7,7 +7,7 @@ myApp.controller('RelaysController', function($scope, $http, $interval){
   $scope.header = 'Relay status';
 
   var getRelaysInfo = function() {
-    $http.get("WebRelay/api/relays").then(function(response){
+    $http.get("/api/v1.0/relays").then(function(response){
       var relays = response.data.relays;
       $scope.relays = relays;
       }, function(error){}
@@ -21,7 +21,7 @@ myApp.controller('RelaysController', function($scope, $http, $interval){
     }
     $scope.newState = newState;
 
-    $http.put("WebRelay/api/relays/"+relay.id, {state : newState}).then(function(response){
+    $http.put("/api/v1.0/relays/"+relay.id, {state : newState}).then(function(response){
       relay = response.data.relay;
       for (var i=0; i < $scope.relays.length; i++) {
         if ($scope.relays[i].id == relay.id) {
@@ -36,4 +36,4 @@ myApp.controller('RelaysController', function($scope, $http, $interval){
     getRelaysInfo();
   }, 500)
   
-});break
+});
