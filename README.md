@@ -47,12 +47,15 @@
 
     curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"color":"255 255 255", "wait_ms":"<int:time_in_milliseconds>"}' http://raspberryip/api/v1.0/led/colorWipe
 
-*color* - колір передається у вигляді рядка в форматі RGB, де інтенсивність для складових кольору розділюється пробілом. Для прикладу зелений "255 0 0". Є обов'язковим параметром.
+*color* - колір передається у вигляді рядка в форматі ~~RGB~~ (точніше BRG), де інтенсивність для складових кольору розділюється пробілом. Для прикладу зелений "0 0 255". Є обов'язковим параметром.
+
 Час задається у вигляді цілого числа мілісекунд. Не є обов'язковим параметром, по замовчуванню рівний 50.
 
 **Додаткові демо-пресети**
 
 1-й (theaterChase)
+
+*Щось схоже на ілюмінацію вивісок в казино і т.д.*
 
     curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"color":"255 255 255", "wait_ms":"<int:time_in_milliseconds>"}' http://raspberryip/api/v1.0/led/theaterChase
 
@@ -62,11 +65,6 @@
 
 *iterations* - к-сть ітерацій не обов'язковий параметр, по замовчуванню рівний 10.
 
-2-й (wheel)
-
-    curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"pos":"90"}' http://raspberryip/api/v1.0/led/wheel
-
-Генерувати кольори веселки від 0 до 255-ї позиції. Необхідно задати стартову позицію - обов'язковий параметр.
 
 3-й (rainbow) 
 

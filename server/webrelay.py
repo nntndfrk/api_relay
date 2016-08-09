@@ -87,6 +87,7 @@ def TimerPinFromRelayObject(relay):
 #======== NeoPixel RGB-LED  ========
 from neopixel import *
 from ledconf import *
+
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
 strip.begin()
 
@@ -96,6 +97,7 @@ def colorWipe(strip, color, wait_ms=50):
         strip.setPixelColor(i, color)
         strip.show()
         time.sleep(wait_ms/1000.0)
+
 
 def theaterChase(strip, color, wait_ms=50, iterations=10):
     """Movie theater light style chaser animation."""
@@ -108,6 +110,7 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i+q, 0)
 
+
 def wheel(pos):
     """Generate rainbow colors across 0-255 positions."""
     if pos < 85:
@@ -119,6 +122,7 @@ def wheel(pos):
         pos -= 170
         return Color(0, pos * 3, 255 - pos * 3)
 
+
 def rainbow(strip, wait_ms=20, iterations=1):
     """Draw rainbow that fades across all pixels at once."""
     for j in range(256*iterations):
@@ -127,6 +131,7 @@ def rainbow(strip, wait_ms=20, iterations=1):
         strip.show()
         time.sleep(wait_ms/1000.0)
 
+
 def rainbowCycle(strip, wait_ms=20, iterations=5):
     """Draw rainbow that uniformly distributes itself across all pixels."""
     for j in range(256*iterations):
@@ -134,6 +139,7 @@ def rainbowCycle(strip, wait_ms=20, iterations=5):
             strip.setPixelColor(i, wheel(((i * 256 / strip.numPixels()) + j) & 255))
         strip.show()
         time.sleep(wait_ms/1000.0)
+
 
 def theaterChaseRainbow(strip, wait_ms=50):
     """Rainbow movie theater light style chaser animation."""
@@ -145,6 +151,7 @@ def theaterChaseRainbow(strip, wait_ms=50):
             time.sleep(wait_ms/1000.0)
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i+q, 0)
+
 #======== end NeoPixel  ========
 
 #========  API  ========
@@ -202,6 +209,7 @@ def update_relay(relay_id):
     u.daemon = True
     u.start()
     return jsonify({'relay': relay})
+
 
 @app.route('/api/v1.0/relays_t/<int:relay_id>', methods=['PUT'])
 @auth.login_required 
@@ -272,22 +280,22 @@ def apitheaterChase():
         abort(501)
 
 
-@app.route('/api/v1.0/led/wheel', methods=['PUT'])
-@auth.login_required 
-def apiwheel():
-    if not request.json:
-        abort(400)
-    if not 'pos' in request.json:
-        abort(400)
-    pos = int(request.json.get('pos'))
+# @app.route('/api/v1.0/led/wheel', methods=['PUT'])
+# @auth.login_required 
+# def apiwheel():
+#     if not request.json:
+#         abort(400)
+#     if not 'pos' in request.json:
+#         abort(400)
+#     pos = int(request.json.get('pos'))
 
-    try:
-        t = threading.Thread(target=wheel, args=(pos,))
-        t.daemon = True
-        t.start()
-        return jsonify({'wheel': 'OK'})
-    except:
-        abort(501)
+#     try:
+#         t = threading.Thread(target=wheel, args=(pos,))
+#         t.daemon = True
+#         t.start()
+#         return jsonify({'wheel': 'OK'})
+#     except:
+#         abort(501)
 
 
 @app.route('/api/v1.0/led/rainbow', methods=['PUT'])
