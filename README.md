@@ -57,7 +57,7 @@
 
 *Щось схоже на ілюмінацію вивісок в казино і т.д.*
 
-    curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"color":"255 255 255", "wait_ms":"<int:time_in_milliseconds>"}' http://raspberryip/api/v1.0/led/theaterChase
+    curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"color":"255 255 255", "wait_ms":"<int:time_in_seconds>"}' http://raspberryip/api/v1.0/led/theaterChase
 
 *color* - обов'язковий параметр
 

@@ -252,7 +252,7 @@ def apicolorWipe():
         cur_proc = cur_proc_list.pop()
         cur_proc.terminate()
     try:
-        proc = threading.Thread(target=colorWipe, args=(strip, color, wait_ms,))
+        proc = multiprocessing.Process(target=colorWipe, args=(strip, color, wait_ms,))
         cur_proc_list.append(proc)
         proc.start()
         return jsonify({'colorWipe': 'OK'})
@@ -277,7 +277,7 @@ def apirainbow():
         cur_proc = cur_proc_list.pop()
         cur_proc.terminate()  
     try:
-        proc = threading.Thread(target=rainbow, args=(strip, wait_ms, iterations,))
+        proc = multiprocessing.Process(target=rainbow, args=(strip, wait_ms, iterations,))
         cur_proc_list.append(proc)
         proc.start()
         return jsonify({'rainbow': 'OK'})
@@ -374,7 +374,7 @@ if __name__ == "__main__":
     print("starting...")
     try:
         Setup()
-        app.run(host='0.0.0.0', port=8001, debug=True)
+        app.run(host='0.0.0.0', port=8000, debug=False)
     finally:
         print("cleaning up")
         GPIO.cleanup()
