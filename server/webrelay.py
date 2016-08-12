@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import os
 import time
 import threading
+import multiprocessing
 from flask import Flask, jsonify, abort, request, render_template, make_response
 from relaydefinitions import relays, relayIdToPin
 
@@ -22,6 +23,7 @@ db = SQLAlchemy(app)
 from flask_httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
+cur_proc_list = []
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -91,6 +93,17 @@ from ledconf import *
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
 strip.begin()
 
+def wheel(pos):
+    """Generate rainbow colors across 0-255 positions."""
+    if pos < 85:
+        return Color(pos * 3, 255 - pos * 3, 0)
+    elif pos < 170:
+        pos -= 85
+        return Color(255 - pos * 3, 0, pos * 3)
+    else:
+        pos -= 170
+        return Color(0, pos * 3, 255 - pos * 3)
+
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
@@ -111,16 +124,6 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
                 strip.setPixelColor(i+q, 0)
 
 
-def wheel(pos):
-    """Generate rainbow colors across 0-255 positions."""
-    if pos < 85:
-        return Color(pos * 3, 255 - pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return Color(255 - pos * 3, 0, pos * 3)
-    else:
-        pos -= 170
-        return Color(0, pos * 3, 255 - pos * 3)
 
 
 def rainbow(strip, wait_ms=20, iterations=1):
@@ -156,13 +159,14 @@ def theaterChaseRainbow(strip, wait_ms=50):
 
 #========  API  ========
 
+
 @app.before_first_request
 def io_init():
-    #GPIO setup
+    """GPIO init"""
     GPIO.setmode(GPIO.BCM)
     Setup()
 
-
+    
 @auth.verify_password
 def ver_password(username, password):
     user = User.query.filter_by(username=username).first()
@@ -230,6 +234,7 @@ def update_relay_t(relay_id):
     t.start()
     return jsonify({'relay': relay})
 
+
 @app.route('/api/v1.0/led/colorWipe', methods=['PUT'])
 @auth.login_required 
 def apicolorWipe():
@@ -243,12 +248,39 @@ def apicolorWipe():
         wait_ms = int(request.json.get('wait_ms'))
     lcolor = request.json.get('color').split()
     color = Color(int(lcolor[0]), int(lcolor[1]), int(lcolor[2]))
-
+    if len(cur_proc_list)>0:
+        cur_proc = cur_proc_list.pop()
+        cur_proc.terminate()
     try:
-        t = threading.Thread(target=colorWipe, args=(strip, color, wait_ms,))
-        t.daemon = True
-        t.start()
+        proc = threading.Thread(target=colorWipe, args=(strip, color, wait_ms,))
+        cur_proc_list.append(proc)
+        proc.start()
         return jsonify({'colorWipe': 'OK'})
+    except:
+        abort(501)
+
+
+@app.route('/api/v1.0/led/rainbow', methods=['PUT'])
+@auth.login_required 
+def apirainbow():
+    if not request.json:
+        abort(400)
+    if not 'wait_ms' in request.json:
+        wait_ms = 20
+    else:
+        wait_ms = int(request.json.get('wait_ms'))
+    if not 'iterations' in request.json:
+        iterations = 1
+    else:
+        iterations = int(request.json.get('iterations'))
+    if len(cur_proc_list)>0:
+        cur_proc = cur_proc_list.pop()
+        cur_proc.terminate()  
+    try:
+        proc = threading.Thread(target=rainbow, args=(strip, wait_ms, iterations,))
+        cur_proc_list.append(proc)
+        proc.start()
+        return jsonify({'rainbow': 'OK'})
     except:
         abort(501)
 
@@ -270,56 +302,16 @@ def apitheaterChase():
         iterations = int(request.json.get('iterations'))
     lcolor = request.json.get('color').split()
     color = Color(int(lcolor[0]), int(lcolor[1]), int(lcolor[2]))
-
+    if len(cur_proc_list)>0:
+        cur_proc = cur_proc_list.pop()
+        cur_proc.terminate()
     try:
-        t = threading.Thread(target=theaterChase, args=(strip, color, wait_ms, iterations,))
-        t.daemon = True
-        t.start()
+        proc = multiprocessing.Process(target=theaterChase, args=(strip, color, wait_ms, iterations,))
+        cur_proc_list.append(proc)
+        proc.start()
         return jsonify({'theaterChase': 'OK'})
     except:
         abort(501)
-
-
-# @app.route('/api/v1.0/led/wheel', methods=['PUT'])
-# @auth.login_required 
-# def apiwheel():
-#     if not request.json:
-#         abort(400)
-#     if not 'pos' in request.json:
-#         abort(400)
-#     pos = int(request.json.get('pos'))
-
-#     try:
-#         t = threading.Thread(target=wheel, args=(pos,))
-#         t.daemon = True
-#         t.start()
-#         return jsonify({'wheel': 'OK'})
-#     except:
-#         abort(501)
-
-
-@app.route('/api/v1.0/led/rainbow', methods=['PUT'])
-@auth.login_required 
-def apirainbow():
-    if not request.json:
-        abort(400)
-    if not 'wait_ms' in request.json:
-        wait_ms = 20
-    else:
-        wait_ms = int(request.json.get('wait_ms'))
-    if not 'iterations' in request.json:
-        iterations = 1
-    else:
-        iterations = int(request.json.get('iterations'))
-
-    try:
-        t = threading.Thread(target=rainbow, args=(strip, wait_ms, iterations,))
-        t.daemon = True
-        t.start()
-        return jsonify({'rainbow': 'OK'})
-    except:
-        abort(501)
-
 
 
 @app.route('/api/v1.0/led/rainbowCycle', methods=['PUT'])
@@ -335,11 +327,13 @@ def apirainbowCycle():
         iterations = 5
     else:
         iterations = int(request.json.get('iterations'))
-
+    if len(cur_proc_list)>0:
+        cur_proc = cur_proc_list.pop()
+        cur_proc.terminate()
     try:
-        t = threading.Thread(target=rainbowCycle, args=(strip, wait_ms, iterations,))
-        t.daemon = True
-        t.start()
+        proc = multiprocessing.Process(target=rainbowCycle, args=(strip, wait_ms, iterations,))
+        cur_proc_list.append(proc)
+        proc.start()
         return jsonify({'rainbowCycle': 'OK'})
     except:
         abort(501)
@@ -354,11 +348,13 @@ def apitheaterChaseRainbow():
         wait_ms = 50
     else:
         wait_ms = int(request.json.get('wait_ms'))
-
+    if len(cur_proc_list)>0:
+        cur_proc = cur_proc_list.pop()
+        cur_proc.terminate()
     try:
-        t = threading.Thread(target=theaterChaseRainbow, args=(strip, wait_ms,))
-        t.daemon = True
-        t.start()
+        proc = multiprocessing.Process(target=theaterChaseRainbow, args=(strip, wait_ms,))
+        cur_proc_list.append(proc)
+        proc.start()
         return jsonify({'theaterChaseRainbow': 'OK'})
     except:
         abort(501)
@@ -373,12 +369,12 @@ def index():
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
-#========  run standalone dev-server  ========
+#========  run standalone dev-server to dedug  ========
 if __name__ == "__main__":
     print("starting...")
     try:
         Setup()
-        app.run(host='0.0.0.0', port=8001, debug=False)
+        app.run(host='0.0.0.0', port=8001, debug=True)
     finally:
         print("cleaning up")
         GPIO.cleanup()
