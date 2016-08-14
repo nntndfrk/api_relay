@@ -10,7 +10,10 @@ relays = [
 	{'id': 9, 'name': 'test_9', 'state': 'on'},
 	{'id': 10, 'name': 'test_10', 'state': 'on'},
 	{'id': 11, 'name': 'test_11', 'state': 'on'},
-	{'id': 12, 'name': 'test_12', 'state': 'on'}
+	{'id': 12, 'name': 'test_12', 'state': 'on'},
+	{'id': 13, 'name': 'test-13', 'state': 'on'},
+	{'id': 14, 'name': 'test-14', 'state': 'on'},
+	{'id': 15, 'name': 'test-15', 'state': 'on'}
 	]
 
 relayIdToPin ={
@@ -25,5 +28,8 @@ relayIdToPin ={
 	9: 21,
 	10: 17,
 	11: 27,
-	12: 22
+	12: 22,
+	13: 24,
+	14: 23,
+	15: 4
 	}
