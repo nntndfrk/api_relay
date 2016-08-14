@@ -26,25 +26,20 @@
     
 **Одержати стан одиночного реле**
 
-    curl -u username:password  http://***raspberryip***/api/v1.0/relays/***<int:relay_id>***
+    curl -u username:password  http://raspberryip/api/v1.0/relays/<int:relay_id>
     
 Повертає інформацію про стан одиночного реле в json.
-raspberryip - ip-адреса пристрою.
+
 
 **Тригерна зміна стану реле**
 
     curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"state":"off"}' http://raspberryip/api/v1.0/relays/<int:relay_id>
-
-state - стан реле
-
-<int: relay_id> - номер реле   
+    
     
 **Таймерна зміна стану реле**
 
-    curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{***"timer"***:"<float:time_in_seconds>"}' http://raspberryip/api/v1.0/relays_t/<int:relay_id>
-
-timer - час переключення    
-
+    curl -u username:password -i -H "Content-Type: application/json" -X PUT -d '{"timer":"<float:time_in_milliseconds>"}' http://raspberryip/api/v1.0/relays_t/<int:relay_id>
+    
     
 ### RGB-led стрічка
 
